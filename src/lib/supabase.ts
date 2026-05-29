@@ -1,24 +1,22 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-export const isSupabaseConfigured = !!(
-  supabaseUrl &&
-  supabaseKey &&
-  supabaseUrl.startsWith("https://") &&
-  supabaseUrl.includes(".supabase.co")
-);
+export function isSupabaseConfigured() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  return !!(url && key && url.startsWith("https://") && url.includes(".supabase.co"));
+}
 
 let client: ReturnType<typeof createBrowserClient> | null = null;
 
 export function createClient() {
-  if (!isSupabaseConfigured) {
-    // Return a mock-like client that won't crash during build
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key || !url.startsWith("https://")) {
     return null as unknown as ReturnType<typeof createBrowserClient>;
   }
   if (!client) {
-    client = createBrowserClient(supabaseUrl!, supabaseKey!);
+    client = createBrowserClient(url, key);
   }
   return client;
 }
