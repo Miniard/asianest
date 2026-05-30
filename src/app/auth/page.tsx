@@ -47,17 +47,8 @@ export default function AuthPage() {
     setLoading(false);
   };
 
-  // DEBUG - remove after testing
-  const debugUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "NOT SET";
-  const debugKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "NOT SET";
-
   return (
     <div className="min-h-screen bg-surface flex">
-      {/* DEBUG BOX - remove after testing */}
-      <div className="fixed bottom-4 right-4 z-[9999] p-4 bg-black text-white text-xs rounded-xl max-w-sm break-all">
-        <p><strong>URL:</strong> {debugUrl.substring(0, 40)}...</p>
-        <p><strong>KEY:</strong> {debugKey.substring(0, 20)}...</p>
-      </div>
       {/* Left side - branding */}
       <div className="hidden lg:flex lg:w-1/2 gradient-hero relative items-center justify-center p-12">
         <div className="absolute inset-0 opacity-5">
