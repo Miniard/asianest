@@ -14,12 +14,10 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
+            <img src="/favicon.svg" alt="AsiaNest" className="w-10 h-10" />
             <div>
-              <span className="text-xl font-bold text-primary tracking-tight">AsiaNest</span>
-              <span className="hidden sm:block text-[10px] text-text-secondary -mt-1 tracking-wide uppercase">Trusted Real Estate</span>
+              <span className="text-xl font-bold text-primary tracking-tight">Asia<span className="text-accent">Nest</span></span>
+              <span className="hidden sm:block text-[10px] text-text-secondary -mt-1 tracking-[0.2em] uppercase">Luxury Real Estate</span>
             </div>
           </Link>
 

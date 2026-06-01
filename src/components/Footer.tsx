@@ -8,10 +8,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-accent" />
-              </div>
-              <span className="text-lg font-bold">AsiaNest</span>
+              <img src="/favicon.svg" alt="AsiaNest" className="w-9 h-9" />
+              <span className="text-lg font-bold">Asia<span className="text-accent">Nest</span></span>
             </div>
             <p className="text-sm text-white/50 leading-relaxed mb-4">
               Your trusted partner for verified real estate in Thailand and Vietnam. Protecting foreign buyers since 2020.
