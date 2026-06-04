@@ -23,26 +23,30 @@ export default function AuthPage() {
     setSuccess("");
     setLoading(true);
 
-    if (mode === "signin") {
-      const { error } = await signIn(email, password);
-      if (error) {
-        setError(error);
+    try {
+      if (mode === "signin") {
+        const { error } = await signIn(email, password);
+        if (error) {
+          setError(error);
+        } else {
+          router.push("/dashboard");
+        }
       } else {
-        router.push("/dashboard");
+        if (!fullName.trim()) {
+          setError("Please enter your full name");
+          setLoading(false);
+          return;
+        }
+        const { error } = await signUp(email, password, fullName);
+        if (error) {
+          setError(error);
+        } else {
+          setSuccess("Account created! You can now sign in.");
+          setMode("signin");
+        }
       }
-    } else {
-      if (!fullName.trim()) {
-        setError("Please enter your full name");
-        setLoading(false);
-        return;
-      }
-      const { error } = await signUp(email, password, fullName);
-      if (error) {
-        setError(error);
-      } else {
-        setSuccess("Account created! Check your email to confirm your account, then sign in.");
-        setMode("signin");
-      }
+    } catch (err: any) {
+      setError(err?.message || "Something went wrong");
     }
     setLoading(false);
   };
