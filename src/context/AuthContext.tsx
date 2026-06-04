@@ -42,19 +42,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSupabase(sb);
 
     const fetchProfile = async (userId: string) => {
-      const { data } = await sb
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      setProfile(data);
+      try {
+        const { data } = await sb
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .single();
+        setProfile(data);
+      } catch {}
     };
+
+    // Fallback: force loading=false after 3s no matter what
+    const timeout = setTimeout(() => setLoading(false), 3000);
 
     sb.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) fetchProfile(session.user.id);
       setLoading(false);
-    });
+      clearTimeout(timeout);
+    }).catch(() => { setLoading(false); clearTimeout(timeout); });
 
     const { data: { subscription } } = sb.auth.onAuthStateChange(
       async (_event, session) => {

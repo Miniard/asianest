@@ -29,9 +29,7 @@ export default function Navbar() {
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
-            {loading ? (
-              <div className="w-20 h-10 bg-surface-alt rounded-xl animate-pulse" />
-            ) : user ? (
+            {user ? (
               <div className="relative">
                 <button
                   onClick={() => setUserMenu(!userMenu)}
