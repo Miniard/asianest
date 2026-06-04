@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase";
-import type { User } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
+import type { User, SupabaseClient } from "@supabase/supabase-js";
 import type { Profile } from "@/lib/types";
 
 interface AuthContextType {
@@ -22,17 +22,27 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
 });
 
+function getSupabase(): SupabaseClient | null {
+  if (typeof window === "undefined") return null;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+  return createBrowserClient(url, key);
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
 
   useEffect(() => {
-    if (!isSupabaseConfigured()) { setLoading(false); return; }
-    const supabase = createClient();
+    const sb = getSupabase();
+    if (!sb) { setLoading(false); return; }
+    setSupabase(sb);
 
     const fetchProfile = async (userId: string) => {
-      const { data } = await supabase
+      const { data } = await sb
         .from("profiles")
         .select("*")
         .eq("id", userId)
@@ -40,8 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(data);
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event: string, session: { user: User | null } | null) => {
+    sb.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) fetchProfile(session.user.id);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = sb.auth.onAuthStateChange(
+      async (_event, session) => {
         setUser(session?.user ?? null);
         if (session?.user) {
           await fetchProfile(session.user.id);
@@ -52,26 +68,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }: { data: { session: any } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    });
-
     return () => subscription.unsubscribe();
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const sb = supabase || getSupabase();
+    if (!sb) return { error: "Connection error" };
+    const { error } = await sb.auth.signInWithPassword({ email, password });
     return { error: error?.message ?? null };
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    const sb = supabase || getSupabase();
+    if (!sb) return { error: "Connection error" };
+    const { error } = await sb.auth.signUp({
       email,
       password,
       options: { data: { full_name: fullName } },
@@ -80,8 +90,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    const sb = supabase || getSupabase();
+    if (!sb) return;
+    await sb.auth.signOut();
     setUser(null);
     setProfile(null);
   };
